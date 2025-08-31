@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IBPS Quiz</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f4f6f9;
+      margin: 0;
+      padding: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+    }
+    .container {
+      width: 95%;
+      max-width: 600px;
+      background: white;
+      padding: 20px;
+      border-radius: 15px;
+      box-shadow: 0px 4px 10px rgba(0,0,0,0.1);
+    }
+    h2 { font-size: 18px; }
+    .section {
+      font-weight: bold;
+      color: #2c3e50;
+      margin-bottom: 10px;
+      font-size: 16px;
+    }
+    .options button {
+      display: block;
+      width: 100%;
+      margin: 8px 0;
+      padding: 10px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      background: #eee;
+      font-size: 16px;
+      transition: 0.3s;
+    }
+    .options button:hover { background: #ddd; }
+    .selected { background: #f9e79f !important; } /* Yellow */
+    .correct { background: #82e0aa !important; color: black; } /* Green */
+    .wrong { background: #f1948a !important; color: black; } /* Red */
+    .controls {
+      margin-top: 15px;
+      display: flex;
+      justify-content: space-between;
+    }
+    .controls button {
+      padding: 10px 15px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      background: #3498db;
+      color: white;
+      font-size: 14px;
+    }
+    .score {
+      font-size: 20px;
+      text-align: center;
+      font-weight: bold;
+      margin-top: 15px;
+    }
+    .solution {
+      margin-top: 10px;
+      padding: 10px;
+      border-left: 4px solid #3498db;
+      background: #ecf0f1;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+    <h1 style="color: rgb(20, 187, 187);">Welcome to IBPS</h1>
+  <div class="section" id="sectionTitle"></div>
+  <h2 id="question"></h2>
+  <div class="options" id="options"></div>
+  <div class="solution" id="solution"></div>
+  <div class="controls">
+    <button onclick="prevQuestion()">Previous</button>
+    <button onclick="nextQuestion()">Next</button>
+  </div>
+  <div class="score" id="score"></div>
+</div>
+
+<script>
+const quizData = [
+  {section:"English",q:"Success does not come overnight; it is the result of consistent effort. According to the passage, success is mainly achieved through:",options:["Luck","Consistent effort and patience","Avoiding risks","Quick decisions"],answer:1,solution:"The passage says success comes from consistent effort. Correct answer → Consistent effort and patience."},
+  {section:"English",q:"Failure should be treated as:",options:["A punishment","A learning opportunity","A reason to quit","An obstacle"],answer:1,solution:"Failure is not the end but a lesson. Correct → A learning opportunity."},
+  {section:"English",q:"Arrange: P: The teacher entered. Q: The students greeted her. R: She started teaching. S: She smiled at them.",options:["PQSR","QPSR","PSQR","PQRS"],answer:0,solution:"Sequence of events → Teacher enters (P), Students greet (Q), Teacher smiles (S), then teaching starts (R). Correct order = PQSR."},
+  {section:"English",q:"Arrange: P: Modern technology has changed communication. Q: Earlier letters took days. R: Now messages are instant. S: Mobiles and internet made it possible.",options:["PQRS","QPRS","PRSQ","QPSR"],answer:1,solution:"First old situation (Q), then change (P), then result (R), finally reason (S). Correct order = QPRS."},
+  {section:"English",q:"Books are our best friends. They give us knowledge and (15) ____ us in difficult times.",options:["leave","help","ignore","stop"],answer:1,solution:"Friends help in difficult times, so correct word is 'help'."},
+  {section:"English",q:"Unlike humans, books never (16) ____ us.",options:["cheat","forget","betray","avoid"],answer:2,solution:"Books never betray us. Correct answer → betray."},
+  {section:"English",q:"Find the error: He do not likes to play cricket.",options:["He","do not","likes","No error"],answer:1,solution:"Error is in 'do not'. With 'He', it should be 'does not like'."},
+  {section:"English",q:"Synonym of 'Abundant':",options:["Rare","Plentiful","Small","Empty"],answer:1,solution:"Abundant means available in plenty. Correct synonym → Plentiful."},
+  {section:"English",q:"Idiom: 'Break the ice' means:",options:["To fall in water","To make people comfortable","To destroy something","To avoid talking"],answer:1,solution:"Break the ice = Start a conversation or make people comfortable."},
+  {section:"English",q:"The cat is hiding ____ the table.",options:["in","on","under","at"],answer:2,solution:"Correct preposition is 'under'. Sentence → The cat is hiding under the table."}
+];
+
+let current = 0;
+let score = 0;
+let answered = Array(quizData.length).fill(false);
+
+function loadQuestion() {
+  let q = quizData[current];
+  document.getElementById("sectionTitle").innerText = `Section: ${q.section}`;
+  document.getElementById("question").innerText = `Q${current+1}. ${q.q}`;
+  let optionsHTML = "";
+  q.options.forEach((opt,i) => {
+    optionsHTML += `<button onclick="checkAnswer(${i}, this)">${opt}</button>`;
+  });
+  document.getElementById("options").innerHTML = optionsHTML;
+  document.getElementById("solution").innerHTML = ""; 
+  document.getElementById("score").innerText = "";
+}
+
+function checkAnswer(selected, btn) {
+  if (answered[current]) return;
+  answered[current] = true;
+  let buttons = document.querySelectorAll("#options button");
+  buttons[selected].classList.add("selected");
+
+  setTimeout(() => {
+    if (selected === quizData[current].answer) {
+      buttons[selected].classList.remove("selected");
+      buttons[selected].classList.add("correct");
+      score++;
+    } else {
+      buttons[selected].classList.remove("selected");
+      buttons[selected].classList.add("wrong");
+      buttons[quizData[current].answer].classList.add("correct");
+    }
+    document.getElementById("solution").innerHTML = "💡 " + quizData[current].solution;
+
+    if (current === quizData.length-1) {
+      document.getElementById("score").innerText = `✅ Final Score: ${score} / ${quizData.length}`;
+    }
+  }, 500);
+}
+
+function nextQuestion() {
+  if (current < quizData.length-1) {
+    current++;
+    loadQuestion();
+  }
+}
+function prevQuestion() {
+  if (current > 0) {
+    current--;
+    loadQuestion();
+  }
+}
+loadQuestion();
+</script>
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
